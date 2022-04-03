@@ -115,12 +115,14 @@ def process_json():
 
 
         else:
-            for j in search(qname,lang="en", proxy=None, advanced=False):
-                url = j
-                html = requests.get(url, headers=headers)
-                text_full = text_from_html(html)
-                siruri = [0, 0, 0, 0]
-                if qname.find("When") != -1:
+            count = [0, 0, 0, 0]
+            if qname.find("When") != -1:
+                for j in search(qname,lang="en", proxy=None, advanced=False):
+                    url = j
+                    html = requests.get(url, headers=headers)
+                    text_full = text_from_html(html)
+                    siruri = [0, 0, 0, 0]
+                    
                     cate = -1
                     x = re.findall('[0-9]+', text_full)
                     for key in x:
@@ -137,42 +139,97 @@ def process_json():
                                 siruri[cate] = key
                         if cate == 3:
                             break
-                # else if qname.find("Who") != -1
 
-                break
-            count = [0, 0, 0, 0]
-            print(siruri[0], siruri[1], siruri[2], siruri[3])
-            for j in search(qname,lang="en", proxy=None, advanced=False):
-                url = j 
-                print(url)
-                html = requests.get(url, headers=headers)
-                text_full = text_from_html(html)
-                str = text_full
-                x = re.findall('[0-9]+', str)
-                for nums in x:
-                    i = 0
-                    while i < 4:
-                        if nums == siruri[i]:
-                            count[i] = count[i] + 1
-                        i = i + 1
-                if( (count[0] - count[1] >= 5 and count[0] - count[2] >= 5 and count[0] - count [3] >= 5) or
-                    (count[1] - count[0] >= 5 and count[1] - count[2] >= 5 and count[1] - count [3] >= 5) or
-                    (count[2] - count[0] >= 5 and count[2] - count[1] >= 5 and count[2] - count [3] >= 5) or
-                    (count[3] - count[0] >= 5 and count[3] - count[1] >= 5 and count[3] - count [2] >= 5) ):
-                    break    
-                print(x)
-            i = 0
-            maxim = 0
-            while i < 4:
-                if count[i] > maxim:
-                    maxim = count[i]
-                    poz = i
-                i = i + 1 
-            i = 0
-            while i < 4:
-                print(count[i])
-                i = i + 1   
-            return jsonify({'answer' : siruri[poz]})
+
+                    break
+                print(siruri[0], siruri[1], siruri[2], siruri[3])
+                for j in search(qname,lang="en", proxy=None, advanced=False):
+                    url = j 
+                    print(url)
+                    html = requests.get(url, headers=headers)
+                    text_full = text_from_html(html)
+                    str = text_full
+                    x = re.findall('[0-9]+', str)
+                    for nums in x:
+                        i = 0
+                        while i < 4:
+                            if nums == siruri[i]:
+                                count[i] = count[i] + 1
+                            i = i + 1
+                    if( (count[0] - count[1] >= 5 and count[0] - count[2] >= 5 and count[0] - count [3] >= 5) or
+                        (count[1] - count[0] >= 5 and count[1] - count[2] >= 5 and count[1] - count [3] >= 5) or
+                        (count[2] - count[0] >= 5 and count[2] - count[1] >= 5 and count[2] - count [3] >= 5) or
+                        (count[3] - count[0] >= 5 and count[3] - count[1] >= 5 and count[3] - count [2] >= 5) ):
+                        break    
+                    print(x)
+                i = 0
+                maxim = 0
+                while i < 4:
+                    if count[i] > maxim:
+                        maxim = count[i]
+                        poz = i
+                    i = i + 1 
+                i = 0
+                while i < 4:
+                    print(count[i])
+                    i = i + 1   
+                return jsonify({'answer' : siruri[2]})
+            if qname.find("Who") != -1:
+                lista = []
+                aux = []
+                for j in search(qname,lang="en", proxy=None, advanced=False):
+                    url = j
+                    print(url)
+                    html = requests.get(url, headers=headers)
+                    text_full = text_from_html(html)
+                    cate = -1
+                    x = re.findall('[A-Z][A-Z]*[a-z]*', text_full)
+                    print(x)
+                    most_comm_w= [word for word, word_count in Counter(x).most_common(10)]
+                    for aux in most_comm_w:
+                        if qname.find(aux) == -1 and aux != "The" and ( len(aux) >= 3 or (len(aux) >= 2 and aux[1] >= 'A' and aux[1] <= 'Z' and qcat == "Gaming" and aux != "News")):
+                            lista.append(aux)
+                    print(lista)
+                most_comm_l = [word for word, word_count in Counter(lista).most_common(2)]   
+                print(most_comm_l)
+                nume = most_comm_l[0] + " " + most_comm_l[1]
+                return jsonify({'answer' : nume})
+
+            if qname.find("Where") != -1:
+                lista = []
+                aux = []
+                for j in search(qname,lang="en", proxy=None, advanced=False):
+                    url = j
+                    print(url)
+                    html = requests.get(url, headers=headers)
+                    text_full = text_from_html(html)
+                    x = re.findall('[A-Z][A-Z]*[a-z]*', text_full)
+                    # print(x)
+                    most_comm_w= [word for word, word_count in Counter(x).most_common(10)]
+                    for aux in most_comm_w:
+                        if qname.find(aux) == -1 and aux != "The" and ( len(aux) >= 3 or (len(aux) >= 2 and aux[1] >= 'A' and aux[1] <= 'Z' and qcat == "Gaming" and aux != "News")):
+                            lista.append(aux)
+                    print(lista)
+                most_comm_l = [word for word, word_count in Counter(lista).most_common(1)]
+                return jsonify({'answer' : most_comm_l})
+
+            if qname.find("Which") != -1 or qname.find("What") != -1:
+                lista = []
+                aux = []
+                for j in search(qname,lang="en", proxy=None, advanced=False):
+                    url = j
+                    print(url)
+                    html = requests.get(url, headers=headers)
+                    text_full = text_from_html(html)
+                    x = re.findall('[A-z][A-Z]*[a-z]*', text_full)
+                    print(x)
+                    most_comm_w= [word for word, word_count in Counter(x).most_common(5)]
+                    for aux in most_comm_w:
+                        if qname.find(aux) == -1 and len(aux) >= 4:
+                            lista.append(aux)
+                    print(lista)
+                most_comm_l = [word for word, word_count in Counter(lista).most_common(1)]
+                return jsonify({'answer' : most_comm_l})
             
     else:
         return 'Content-Type not supported!'
